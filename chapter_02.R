@@ -1,3 +1,5 @@
+# Chapter 02 --------------------------------------------------------------
+
 ## Grid Approximation
 
 # define grid
@@ -72,7 +74,7 @@ curve(dbeta(x, W+1, L+1), lty = 2, add = TRUE)
 
 
 
-## Practice
+# Practice ----------------------------------------------------------------
 
 # 2M1
 p_grid <- seq(0, 1, length.out = 42)
