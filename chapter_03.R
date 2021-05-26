@@ -99,3 +99,96 @@ w <- rbinom(1e4, size = 9, prob = samples)
 
 
 
+# Practice ----------------------------------------------------------------
+rm(list = ls())
+
+## Easy
+p_grid <- seq( from=0 , to=1 , length.out=1000 )
+prior <- rep( 1 , 1000 )
+likelihood <- dbinom( 6 , size=9 , prob=p_grid )
+posterior <- likelihood * prior
+posterior <- posterior / sum(posterior)
+set.seed(100)
+samples <- sample( p_grid , prob=posterior , size=1e4 , replace=TRUE )
+
+# 3E1
+# sum(posterior[p_grid < 0.2])
+sum(samples < 0.2) / 1e4
+
+# 3E2
+# sum(posterior[p_grid > 0.8])
+sum(samples > 0.8) / 1e4
+
+# 3E3
+sum(samples > 0.2 & samples < 0.8) / 1e4
+
+# 3E4
+quantile(samples, 0.2)
+
+# 3E5
+quantile(samples, 0.8)
+
+# 3E6
+# narrowest interval containing 66% of posterior probability
+rethinking::HPDI(samples, 0.66)
+
+# 3E7
+# interval containing 66% of posterior probability, assuming equal posterior probaility on left (below) and right (above) tails
+rethinking::PI(samples, 0.66)
+
+
+## Medium
+rm(list = ls())
+
+# 3M1
+p_grid <- seq( from=0 , to=1 , length.out=1000 )
+prior <- rep( 1 , 1000 )
+likelihood <- dbinom( 8 , size=15 , prob=p_grid )
+posterior <- likelihood * prior
+posterior <- posterior / sum(posterior)
+
+# 3M2
+samples <- sample( p_grid , prob=posterior , size=1e4 , replace=TRUE )
+rethinking::HPDI(samples, .9)
+
+# 3M3
+w <- rbinom(1e4, size = 15, prob = samples)
+sum(w[w = 8]) / 1e4
+
+# 3M4
+w <- rbinom(1e4, size = 9, prob = samples)
+sum(w[w = 6]) / 1e4
+
+# 3M5
+rm(list = ls())
+
+p_grid <- seq( from=0 , to=1 , length.out=1000 )
+prior <- ifelse(p_grid < 0.5, 0, 1)
+likelihood <- dbinom( 8 , size=15 , prob=p_grid )
+posterior <- likelihood * prior
+posterior <- posterior / sum(posterior)
+
+set.seed(100)
+samples <- sample( p_grid , prob=posterior , size=1e4 , replace=TRUE )
+
+rethinking::HPDI(samples, .9)
+
+w <- rbinom(1e4, size = 15, prob = samples)
+sum(w[w = 8]) / 1e4
+
+
+# 3M6
+p_grid <- seq( from=0 , to=1 , length.out=1000 )
+prior <- rep( 1 , 1000 )
+likelihood <- dbinom( round(2300*6/9) , size=2300 , prob=p_grid )
+posterior <- likelihood * prior
+posterior <- posterior / sum(posterior)
+
+samples <- sample( p_grid , prob=posterior , size=1e4 , replace=TRUE )
+diff(rethinking::PI(samples, 0.99))
+
+# rethinking::HPDI(samples, 0.99)
+
+# rethinking::dens(samples)
+
+## Hard
