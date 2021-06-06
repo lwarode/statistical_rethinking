@@ -192,3 +192,68 @@ diff(rethinking::PI(samples, 0.99))
 # rethinking::dens(samples)
 
 ## Hard
+rm(list = ls())
+
+library(rethinking)
+
+birth1 <- c(1,0,0,0,1,1,0,1,0,1,0,0,1,1,0,1,1,0,0,0,1,0,0,0,1,0,
+            0,0,0,1,1,1,0,1,0,1,1,1,0,1,0,1,1,0,1,0,0,1,1,0,1,0,0,0,0,0,0,0,
+            1,1,0,1,0,0,1,0,0,0,1,0,0,1,1,1,1,0,1,0,1,1,1,1,1,0,0,1,0,1,1,0,
+            1,0,1,1,1,0,1,1,1,1)
+
+birth2 <- c(0,1,0,1,0,1,1,1,0,0,1,1,1,1,1,0,0,1,1,1,0,0,1,1,1,0,
+            1,1,1,0,1,1,1,0,1,0,0,1,1,1,1,0,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,
+            1,1,1,0,1,1,0,1,1,0,1,1,1,0,0,0,0,0,0,1,0,0,0,1,1,0,0,1,0,0,1,1,
+            0,0,0,1,1,1,0,0,0,0)
+
+sum(birth1 + birth2)
+
+# 3H1
+p_grid <- seq(0, 1, length.out=1000 )
+prior <- rep(1, 1000)
+
+boys <- sum(birth1 + birth2)
+births <- length(birth1) + length(birth2)
+
+likelihood <- dbinom(boys, size=births , prob=p_grid )
+# posterior <- likelihood * prior
+# posterior <- posterior / sum(posterior)
+posterior <- likelihood * prior / sum(likelihood * prior)
+
+p_grid[which.max(posterior)] # MAP
+
+# 3H2
+samples <- sample( p_grid , prob=posterior , size=1e4 , replace=TRUE )
+
+HPDI(samples, prob = .5)
+HPDI(samples, prob = .89)
+HPDI(samples, prob = .97)
+
+# 3H3
+birth_simulation <- rbinom(1e4, 200, prob = samples)
+birth_simulation[birth_simulation = 111]
+sum(birth_simulation[birth_simulation = 111]) / 1e4
+
+# dens(birth_simulation)
+# abline(v = sum(birth1 + birth2), col = "red")
+
+ggplot(birth_simulation %>% as.data.frame(), aes(.)) + 
+  geom_density() +
+  geom_vline(xintercept = 111)
+
+
+# 3H4
+birth_simulation_1 <- rbinom(1e4, 100, prob = samples)
+
+sum(birth1)
+
+ggplot(birth_simulation_1 %>% as.data.frame(), aes(.)) + 
+  geom_density() +
+  geom_vline(xintercept = sum(birth1))
+
+
+# 3H5
+first_born_girls <- length(birth1) - sum(birth1)
+
+first_girls_simulation <- rbinom(1e4, first_born_girls, prob = samples)
+
